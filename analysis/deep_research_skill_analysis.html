@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep Research Skill 完整技術分析（繁體中文）</title>
+<style>
+  :root {
+    --navy: #003d5c;
+    --navy-dark: #002840;
+    --gray-bg: #f8f9fa;
+    --border: #d1d5db;
+    --text: #1a1a1a;
+    --muted: #4a5568;
+    --accent: #0a6f9b;
+    --warn: #b45309;
+    --ok: #166534;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: "PingFang TC", "Noto Sans TC", "Microsoft JhengHei",
+                 "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 15px; line-height: 1.7; color: var(--text); background: #ffffff;
+  }
+  .container { max-width: 1180px; margin: 0 auto; }
+  header.report-header {
+    background: var(--navy); color: #fff; padding: 32px 44px;
+    border-bottom: 4px solid var(--navy-dark);
+  }
+  header.report-header h1 { font-size: 28px; letter-spacing: -0.5px; margin-bottom: 8px; }
+  header.report-header .meta { color: #b8d4e6; font-size: 13px; display: flex; gap: 24px; flex-wrap: wrap; }
+  nav.toc {
+    background: var(--gray-bg); padding: 22px 44px; border-bottom: 1px solid var(--border);
+  }
+  nav.toc h2 { font-size: 14px; color: var(--muted); text-transform: uppercase;
+               letter-spacing: 0.6px; margin-bottom: 10px; }
+  nav.toc ol { padding-left: 22px; columns: 2; column-gap: 40px; }
+  nav.toc li { padding: 3px 0; font-size: 14px; }
+  nav.toc a { color: var(--navy); text-decoration: none; }
+  nav.toc a:hover { text-decoration: underline; }
+  main { padding: 0 44px 60px; }
+  section.section {
+    border-bottom: 1px solid var(--border); padding: 36px 0;
+  }
+  section.section:last-child { border-bottom: none; }
+  h2.section-title {
+    font-size: 22px; color: var(--navy); margin-bottom: 18px;
+    padding-bottom: 8px; border-bottom: 2px solid var(--navy);
+  }
+  h3.subsection-title {
+    font-size: 17px; color: var(--navy-dark); margin: 22px 0 10px;
+  }
+  h4 { font-size: 15px; color: var(--muted); margin: 16px 0 8px; }
+  p { margin-bottom: 12px; text-align: justify; }
+  ul, ol { margin: 8px 0 14px 28px; }
+  li { margin-bottom: 6px; }
+  table {
+    width: 100%; border-collapse: collapse; margin: 14px 0 18px;
+    font-size: 14px;
+  }
+  th, td {
+    padding: 9px 12px; text-align: left; border: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { background: var(--gray-bg); color: var(--navy); font-weight: 600; }
+  code {
+    font-family: "JetBrains Mono", Menlo, Consolas, monospace;
+    background: #eef2f5; padding: 1px 5px; font-size: 13px; color: #b13a3a;
+  }
+  pre {
+    background: #0e1f2a; color: #e6f2ff; padding: 14px 18px; margin: 12px 0;
+    overflow-x: auto; font-size: 13px; line-height: 1.55;
+    border-left: 3px solid var(--accent);
+  }
+  pre code { background: transparent; color: inherit; padding: 0; }
+  .callout {
+    border-left: 4px solid var(--accent);
+    background: #f0f7fb; padding: 12px 16px; margin: 14px 0;
+  }
+  .callout.warn { border-color: var(--warn); background: #fff7ec; }
+  .callout.ok   { border-color: var(--ok);   background: #effaf1; }
+  .pill {
+    display: inline-block; padding: 1px 8px; font-size: 12px;
+    background: var(--gray-bg); color: var(--muted); border: 1px solid var(--border);
+    margin-right: 4px;
+  }
+  .metric-row {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 0; border: 1px solid var(--border); margin: 14px 0;
+  }
+  .metric {
+    padding: 14px 18px; border-right: 1px solid var(--border); background: var(--gray-bg);
+    text-align: center;
+  }
+  .metric:last-child { border-right: none; }
+  .metric .num { display: block; font-size: 26px; color: var(--navy); font-weight: 700; }
+  .metric .lbl { font-size: 12px; color: var(--muted); text-transform: uppercase; letter-spacing: .5px; }
+  .lifecycle ol { counter-reset: stage; list-style: none; margin-left: 0; padding-left: 0; }
+  .lifecycle li.stage {
+    counter-increment: stage; margin-bottom: 14px; padding: 12px 16px 12px 60px;
+    border: 1px solid var(--border); background: #fff; position: relative;
+  }
+  .lifecycle li.stage::before {
+    content: counter(stage); position: absolute; left: 14px; top: 12px;
+    width: 32px; height: 32px; background: var(--navy); color: #fff;
+    text-align: center; line-height: 32px; font-weight: 700;
+  }
+  .lifecycle li.stage h4 { margin: 0 0 6px; color: var(--navy); font-size: 15px; }
+  footer { padding: 22px 44px; background: var(--gray-bg); color: var(--muted);
+           border-top: 1px solid var(--border); font-size: 12px; text-align: center; }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header class="report-header">
+  <h1>Deep Research Skill — 完整技術分析報告</h1>
+  <div class="meta">
+    <span>標的：199-biotechnologies/claude-deep-research-skill</span>
+    <span>分支：claude/research-search-citation-uIIgG</span>
+    <span>產出日期：2026-05-11</span>
+    <span>語言：繁體中文</span>
+  </div>
+</header>
+
+<nav class="toc">
+  <h2>目錄</h2>
+  <ol>
+    <li><a href="#overview">專案總覽</a></li>
+    <li><a href="#architecture">架構與檔案地圖</a></li>
+    <li><a href="#pipeline">8 階段研究流水線</a></li>
+    <li><a href="#data-substrate">資料層：JSONL 證據基底</a></li>
+    <li><a href="#scripts">核心腳本逐一拆解</a></li>
+    <li><a href="#tests">測試覆蓋與品質閘</a></li>
+    <li><a href="#strengths">優點分析</a></li>
+    <li><a href="#weaknesses">缺點、風險與技術債</a></li>
+    <li><a href="#search-citation-lifecycle">深度章節：Search → Citation 生命週期</a></li>
+    <li><a href="#reproduce-prompt">交付給其他 coding agent 的覆現 Prompt</a></li>
+    <li><a href="#conclusion">結論與後續建議</a></li>
+  </ol>
+</nav>
+
+<main>
+
+<section id="overview" class="section">
+  <h2 class="section-title">1. 專案總覽</h2>
+  <p>
+    <strong>Deep Research Skill</strong> 是一個專為 Claude Code 設計的「深度研究技能」（Skill）。
+    它本身不是執行階段（runtime）的代理框架，而是一組由 <em>Markdown 指引文件</em>、
+    <em>JSON Schema 契約</em>、<em>Python CLI 工具</em> 與 <em>HTML / Markdown 樣板</em>
+    所組成的「研究工作流腳手架」。Claude Code 模型本身擔任協調者（orchestrator），透過
+    這些檔案規範研究流程，並在過程中將每一筆 source、evidence、claim 持久化到磁碟，
+    以便支援上下文壓縮（context compaction）、長報告續寫（continuation agent）以及
+    引用驗證。
+  </p>
+
+  <div class="metric-row">
+    <div class="metric"><span class="num">10</span><span class="lbl">核心 Python 腳本</span></div>
+    <div class="metric"><span class="num">8</span><span class="lbl">研究階段</span></div>
+    <div class="metric"><span class="num">4</span><span class="lbl">JSON Schema 契約</span></div>
+    <div class="metric"><span class="num">4</span><span class="lbl">研究模式</span></div>
+    <div class="metric"><span class="num">3.0</span><span class="lbl">當前資料層版本</span></div>
+  </div>
+
+  <h3 class="subsection-title">1.1 設計哲學</h3>
+  <ul>
+    <li><strong>Claude 是執行者，腳本是契約</strong>：<code>research_engine.py</code> 在首部
+        即標明「<em>STATE SCAFFOLD (not a runtime orchestrator)</em>」。Python 端只提供
+        指令範本與狀態 I/O，真正驅動研究的是模型自身。</li>
+    <li><strong>內容尋址（content-addressable）的證據基底</strong>：source、evidence、claim
+        三者皆以 SHA-256 截斷哈希作為穩定主鍵，使「重排引用編號」「續寫」「壓縮上下文」
+        都不會破壞引用關聯。</li>
+    <li><strong>Append-only JSONL</strong>：所有研究痕跡（資料、證據、論點）採只追加日誌，
+        天然支援多 agent 並行寫入與審計回溯。</li>
+    <li><strong>引用幻覺零容忍</strong>：<code>verify_citations.py</code> 內建 <em>CiteGuard 2025</em>
+        模式比對與 DOI / URL 雙重驗證；<code>verify_claim_support.py</code> 進一步驗證每一句
+        論點是否確實有證據支撐。</li>
+  </ul>
+</section>
+
+<section id="architecture" class="section">
+  <h2 class="section-title">2. 架構與檔案地圖</h2>
+
+  <h3 class="subsection-title">2.1 目錄結構</h3>
+<pre><code>deep-research/
+├── SKILL.md                          # Skill 入口（精簡版，~109 行）
+├── README.md                         # 對外說明文件
+├── requirements.txt                  # 純標準函式庫，無 pip 相依
+├── reference/                        # 詳細指引（由 SKILL.md 按需載入）
+│   ├── methodology.md                # 8 階段流水線細節（421 行）
+│   ├── report-assembly.md            # 漸進式報告組裝
+│   ├── quality-gates.md              # 品質閘與防幻覺協議
+│   ├── html-generation.md            # 麥肯錫風 HTML 產製
+│   ├── continuation.md               # 自動續寫協議
+│   └── weasyprint_guidelines.md      # PDF 排版指南
+├── templates/
+│   ├── report_template.md            # Markdown 報告骨架
+│   └── mckinsey_report_template.html # HTML 模板
+├── schemas/                          # JSON Schema 契約（draft-2020-12）
+│   ├── source.schema.json
+│   ├── evidence.schema.json
+│   ├── claim.schema.json
+│   └── run_manifest.schema.json
+├── scripts/                          # CLI 工具集
+│   ├── citation_manager.py           # 來源身分 + run manifest
+│   ├── evidence_store.py             # Append-only 證據庫
+│   ├── extract_claims.py             # 原子化論點抽取
+│   ├── verify_claim_support.py       # 論點 ↔ 證據對齊驗證
+│   ├── verify_citations.py           # DOI/URL/幻覺檢測
+│   ├── source_evaluator.py           # 來源信譽評分
+│   ├── validate_report.py            # 9 項結構檢查
+│   ├── verify_html.py                # HTML 對齊驗證
+│   ├── md_to_html.py                 # MD → HTML 轉換
+│   └── research_engine.py            # 階段指令範本（state scaffold）
+└── tests/                            # pytest 單元測試
+    └── fixtures/
+</code></pre>
+
+  <h3 class="subsection-title">2.2 模組相依關係</h3>
+  <p>
+    模組之間刻意保持低耦合，主要依賴是「共享磁碟資料夾」而非 Python import：
+  </p>
+  <ul>
+    <li><code>citation_manager.py</code> 寫入 <code>sources.jsonl</code> 與
+        <code>run_manifest.json</code>。</li>
+    <li><code>evidence_store.py</code> 透過 <code>source_id</code> 引用 source，
+        寫入 <code>evidence.jsonl</code>。</li>
+    <li><code>extract_claims.py</code> 解析報告 markdown，寫入 <code>claims.jsonl</code>。</li>
+    <li><code>verify_claim_support.py</code> 同時讀三份 JSONL，更新 claim 的
+        <code>support_status</code>。</li>
+    <li><code>validate_report.py</code> 與 <code>verify_citations.py</code>
+        只讀 <code>report.md</code>，獨立檢查結構與引用合法性。</li>
+  </ul>
+</section>
+
+<section id="pipeline" class="section">
+  <h2 class="section-title">3. 8 階段研究流水線</h2>
+
+  <table>
+    <thead>
+      <tr><th>#</th><th>階段</th><th>目的</th><th>Quick</th><th>Standard</th><th>Deep</th><th>Ultra</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>1</td><td>SCOPE</td><td>界定研究邊界與成功條件</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>2</td><td>PLAN</td><td>制定查詢策略與三角驗證計畫</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>3</td><td>RETRIEVE</td><td>並行多源檢索 + 子代理</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>4</td><td>TRIANGULATE</td><td>3+ 來源交叉驗證</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>4.5</td><td>OUTLINE REFINEMENT</td><td>依證據動態調整大綱（WebWeaver 2025）</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>5</td><td>SYNTHESIZE</td><td>跨源洞察與框架</td><td>—</td><td>✓</td><td>✓</td><td>✓</td></tr>
+      <tr><td>6</td><td>CRITIQUE</td><td>多人格紅隊評審 + 缺口回環</td><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
+      <tr><td>7</td><td>REFINE</td><td>填補缺口、強化弱點</td><td>—</td><td>—</td><td>✓</td><td>✓</td></tr>
+      <tr><td>8</td><td>PACKAGE</td><td>漸進組裝 MD/HTML/PDF</td><td>✓</td><td>✓</td><td>✓</td><td>✓</td></tr>
+    </tbody>
+  </table>
+
+  <p>
+    階段 3-5 並非嚴格序列，而是「檢索 → 證據持久化 → 大綱微調 → 撰寫 → 論點驗證 →
+    delta 檢索」的證據迴圈，可逐節進行；階段 6 還允許「<em>critical gap loop-back</em>」
+    回到階段 3 的 delta-query。
+  </p>
+</section>
+
+<section id="data-substrate" class="section">
+  <h2 class="section-title">4. 資料層：JSONL 證據基底</h2>
+
+  <p>
+    每次研究會在 <code>~/Documents/[Topic]_Research_[YYYYMMDD]/</code> 建立一個
+    研究資料夾，內含：
+  </p>
+  <ul>
+    <li><code>run_manifest.json</code>：研究設定與假設清單。</li>
+    <li><code>sources.jsonl</code>：來源註冊表（append-only）。</li>
+    <li><code>evidence.jsonl</code>：證據條目（append-only）。</li>
+    <li><code>claims.jsonl</code>：原子化論點與支撐狀態。</li>
+    <li><code>report.md</code>：主報告（markdown）。</li>
+  </ul>
+
+  <h3 class="subsection-title">4.1 三個內容尋址 ID</h3>
+  <pre><code>source_id   = sha256(canonical_locator)[:16]
+evidence_id = sha256(source_id + normalize(quote) + locator)[:16]
+claim_id    = sha256(section_id + normalize(text))[:16]</code></pre>
+
+  <p>
+    這個設計帶來幾個關鍵性質：
+  </p>
+  <ul>
+    <li><strong>冪等註冊</strong>：相同 URL 多次註冊只會產生同一個 source_id，
+        <code>cmd_register_source</code> 在 append 前會線性掃描去重。</li>
+    <li><strong>展示編號與身分分離</strong>：<code>[1] [2] [3]</code> 是 render-time
+        指派，由 <code>assign-display-numbers</code> 動態產生，因此編輯／續寫不會
+        造成引用斷鏈。</li>
+    <li><strong>跨 agent 共享狀態</strong>：續寫代理只要拿到資料夾路徑即可重建完整
+        引用上下文。</li>
+  </ul>
+
+  <h3 class="subsection-title">4.2 Canonical Locator 規則</h3>
+  <p>
+    <code>citation_manager.canonicalize_locator()</code> 採以下優先序：
+  </p>
+  <ol>
+    <li>若 URL 含 <code>doi.org/10.x/...</code> 或 <code>doi:</code> → 標準化為
+        <code>doi:10.xxxx/yyy</code>（去尾部句點）。</li>
+    <li>若 URL 含 <code>arxiv.org/abs/</code> 或 <code>arxiv:</code> → 標準化為
+        <code>arxiv:2305.14251</code>。</li>
+    <li>否則回退到「URL 標準化」：lower-case scheme/host、去 fragment、去
+        <code>utm_*</code>/<code>fbclid</code>/<code>gclid</code> 等追蹤參數，
+        並對保留下的 query 排序。</li>
+  </ol>
+  <p>
+    這個三段式策略讓「同一篇論文的 PDF/DOI/arXiv 鏡像」高機率被識別為同一來源，
+    顯著減少重複引用。
+  </p>
+</section>
+
+<section id="scripts" class="section">
+  <h2 class="section-title">5. 核心腳本逐一拆解</h2>
+
+  <h3 class="subsection-title">5.1 citation_manager.py</h3>
+  <p>
+    管理「來源身分」與「研究 run」兩件事，提供四個子指令：
+  </p>
+  <table>
+    <thead><tr><th>指令</th><th>功能</th><th>輸出</th></tr></thead>
+    <tbody>
+      <tr><td><code>init-run</code></td><td>建立 manifest 與三個空 JSONL</td><td><code>run_manifest.json</code></td></tr>
+      <tr><td><code>register-source</code></td><td>標準化 URL → 計算 source_id → append</td><td>JSON：<code>{status, source_id}</code></td></tr>
+      <tr><td><code>assign-display-numbers</code></td><td>依註冊順序給予顯示編號</td><td>JSON map：<code>{source_id: N}</code></td></tr>
+      <tr><td><code>export-bibliography</code></td><td>輸出 markdown 或 JSON 參考書目</td><td>STDOUT</td></tr>
+    </tbody>
+  </table>
+
+  <h3 class="subsection-title">5.2 evidence_store.py</h3>
+  <p>
+    追加式證據庫。每筆證據必須提供 <code>source_id</code> 與
+    <code>quote</code>，並可選 <code>locator</code>（頁碼/章節/錨點）、
+    <code>retrieval_query</code>、<code>evidence_type</code>。
+    <code>evidence_type</code> 限定為
+    <span class="pill">direct_quote</span><span class="pill">paraphrase</span>
+    <span class="pill">data_point</span><span class="pill">figure_reference</span>
+    <span class="pill">methodology</span>，預設值為 <code>direct_quote</code>。
+  </p>
+
+  <h3 class="subsection-title">5.3 source_evaluator.py</h3>
+  <p>
+    純 Python、純啟發式的信譽評分器，輸出 <code>CredibilityScore</code> 物件，
+    包含四個分項：
+  </p>
+  <ul>
+    <li><strong>domain_authority (35%)</strong>：兩級白名單。HIGH 域名（arxiv、nature、
+        nih.gov 等）→ 90；MODERATE（techcrunch、wikipedia 等）→ 70；
+        LOW 指標（blogspot、wordpress 等）→ 40；未知 → 55。</li>
+    <li><strong>recency (20%)</strong>：&lt;90d → 100；&lt;1y → 85；&lt;2y → 70；
+        &lt;5y → 50；其餘 30。</li>
+    <li><strong>expertise (25%)</strong>：學術/政府/官方文件加分，作者頭銜
+        （Dr./PhD/Professor）+15。</li>
+    <li><strong>bias (20%)</strong>：標題含「!、shocking、secret」扣分；
+        含「however、although」加分。</li>
+  </ul>
+  <p>最終 overall 對應到 <code>high_trust / moderate_trust / low_trust / verify</code> 四級。</p>
+
+  <h3 class="subsection-title">5.4 verify_citations.py（CiteGuard 2025）</h3>
+  <p>
+    對 <code>## Bibliography</code> 區段做四步檢查：
+  </p>
+  <ol>
+    <li><strong>幻覺模式偵測</strong>：用 regex 抓「<em>A Study of …</em>」「<em>Recent Advances in …</em>」
+        等典型 LLM 編造模式；偵測未來年份、太短的通用標題、placeholder 文字、
+        過去年份配上現代術語（如 1995 + LLM）。</li>
+    <li><strong>DOI 解析</strong>：透過 <code>doi.org</code> content-negotiation
+        取得 CSL-JSON metadata，比對標題（Jaccard 相似度）與年份。</li>
+    <li><strong>URL HEAD 請求</strong>：DOI 失敗時退而求其次，檢查連結可達性。</li>
+    <li><strong>無 DOI 也無 URL</strong>：標記為 <code>suspicious</code>。</li>
+  </ol>
+  <p>
+    腳本支援 <code>--strict</code> 旗標：任何 suspicious 即非零退出，可作為 CI gate。
+  </p>
+
+  <h3 class="subsection-title">5.5 extract_claims.py</h3>
+  <p>
+    讀取 markdown 報告，依預先定義的章節 regex 切段，再以「<code>(?&lt;=[.!?])\s+(?=[A-Z])</code>」
+    做樸素句子切割。每句 ≥30 字符且非標題、表格列即視為候選論點，並做啟發式分類：
+  </p>
+  <ul>
+    <li><code>recommendation</code>：含 should/recommend/suggest/advise/consider。</li>
+    <li><code>speculation</code>：含 might/could potentially/it is possible/may eventually。</li>
+    <li><code>synthesis</code>：在 synthesis/conclusion/limitations 章節且含
+        「overall、taken together、the evidence suggests」。</li>
+    <li><code>factual</code>：預設。</li>
+  </ul>
+  <p>
+    分類意義在於 <code>verify_claim_support.py</code> 對不同類型有不同嚴格度：
+    <strong>只有 factual 類論點會 hard-fail。</strong>
+  </p>
+
+  <h3 class="subsection-title">5.6 verify_claim_support.py</h3>
+  <p>
+    完全確定性、無 LLM 呼叫的論點驗證器。對每一個 claim：
+  </p>
+  <ol>
+    <li>從 <code>cited_source_ids</code> + <code>evidence_ids</code> 收集所有候選引文。</li>
+    <li>對每段 quote 計算四個重疊率：</li>
+  </ol>
+<pre><code>token_overlap = |claim_tokens ∩ ev_tokens| / |claim_tokens|       # 4+ 字小寫詞
+number_match  = |claim_numbers ∩ ev_numbers| / |claim_numbers|
+year_match    = |claim_years ∩ ev_years| / |claim_years|
+entity_match  = |claim_entities ∩ ev_entities| / |claim_entities|  # 樸素 NER
+
+score = 0.4*token + 0.25*number + 0.15*year + 0.2*entity</code></pre>
+  <p>
+    取所有候選 quote 的最高分作為該 claim 的支撐分數，並依門檻歸類：
+    <code>≥0.6 supported</code>、<code>≥0.35 partial</code>、其他 <code>needs_review</code>。
+    無證據時的分支有兩種：(a) 完全沒有任何 <code>cited_source_ids</code>、
+    <code>evidence_ids</code> 與 quote → speculation 類視為 supported，其餘為
+    <code>unsupported</code>；(b) 有 cited 或 evidence 連結但實際抓不到任何 quote
+    → 一律 <code>needs_review</code>。<code>--strict</code> 模式下
+    「factual + unsupported」即非零退出。
+  </p>
+
+  <h3 class="subsection-title">5.7 validate_report.py（9 項結構檢查）</h3>
+  <ol>
+    <li>Executive Summary 存在且字數 ~200-400。</li>
+    <li>必備章節（Introduction、Main Analysis、Synthesis、Limitations、
+        Recommendations、Bibliography、Methodology）齊全。</li>
+    <li>引用數 ≥10 且 [N] 編號連續。</li>
+    <li>Bibliography 涵蓋所有 [N]、無 placeholder（如 <code>[8-75]</code>、
+        <em>Additional citations…</em>）。</li>
+    <li>無 TBD/TODO/FIXME 等標記。</li>
+    <li>無內容截斷模式（<em>Content continues、Due to length、[Sections X-Y]</em>）。</li>
+    <li>字數合理。</li>
+    <li>來源數 ≥10。</li>
+    <li>內部連結（<code>./...</code>）有效。</li>
+  </ol>
+  <p>
+    區分 errors 與 warnings：errors 任一非零即不通過，warnings 不阻擋但會列出。
+  </p>
+
+  <h3 class="subsection-title">5.8 md_to_html.py + verify_html.py</h3>
+  <p>
+    自寫 markdown→HTML 轉換器（不依賴 <code>markdown</code> 套件，純 regex 與行掃描），
+    將每個 <code>##</code> 包成 <code>&lt;div class="section"&gt;</code>，
+    保留 <code>[N]</code> 引用便於後續 tooltip 注入。<code>verify_html.py</code> 比對
+    MD/HTML 章節數、檢查未替換的 <code>{{...}}</code> placeholder、確認沒有 emoji
+    （此 skill 嚴格禁止輸出 emoji）。
+  </p>
+
+  <h3 class="subsection-title">5.9 research_engine.py</h3>
+  <p>
+    本檔不是真正的協調者，而是「階段指令範本庫 + 狀態序列化」。對於每個
+    <code>ResearchPhase</code> 提供一段對 Claude 的提示（instructions），
+    並提供 <code>ResearchState</code> dataclass 的 save/load。
+    這也是整個 skill「Claude 是執行者，腳本是契約」哲學最直接的體現。
+  </p>
+</section>
+
+<section id="tests" class="section">
+  <h2 class="section-title">6. 測試覆蓋與品質閘</h2>
+  <ul>
+    <li><code>test_citation_manager.py</code>（195 行）：URL 標準化、DOI/arXiv 抽取、
+        重複註冊去重、bibliography 輸出格式。</li>
+    <li><code>test_evidence_store.py</code>（166 行）：evidence_id 計算、相同 quote
+        去重、evidence_type 白名單。</li>
+    <li><code>test_extract_claims.py</code>（213 行）：章節解析、句子切割、
+        claim 分類啟發式。</li>
+    <li><code>test_verify_claim_support.py</code>（230 行）：token/number/year/entity
+        重疊率與門檻。</li>
+  </ul>
+  <p>
+    報告類腳本（<code>validate_report.py</code>、<code>verify_citations.py</code>、
+    <code>verify_html.py</code>、<code>source_evaluator.py</code>、
+    <code>md_to_html.py</code>、<code>research_engine.py</code>）<strong>並無對應單元測試</strong>，
+    這是顯著的覆蓋缺口（詳見 §8）。
+  </p>
+</section>
+
+<section id="strengths" class="section">
+  <h2 class="section-title">7. 優點分析</h2>
+
+  <h3 class="subsection-title">7.1 引用與證據的工程化處理</h3>
+  <ul>
+    <li><strong>三層內容尋址</strong>讓引用脫離「順序敏感的 [1][2][3]」，這在 LLM
+        編輯／壓縮上下文時尤為關鍵。多數同類框架仍把 [N] 當主鍵，續寫時容易斷鏈。</li>
+    <li><strong>純啟發式的 claim-support 驗證</strong>無需呼叫 LLM，CI 友善，成本可控；
+        針對 factual 類型才 hard-fail，務實。</li>
+    <li><strong>CiteGuard 模式庫</strong>把 LLM 常見的「假論文標題」抓住（<em>A Study of …</em>、
+        future year、anachronistic AI 引用），第一線就過濾大量幻覺。</li>
+  </ul>
+
+  <h3 class="subsection-title">7.2 工程實作品質</h3>
+  <ul>
+    <li>Python 3.9+ 標準函式庫，<code>requirements.txt</code> 內無 pip 相依，部署門檻極低。</li>
+    <li>CLI 都採 <code>argparse</code> + 子指令模式，輸出 JSON 至 stdout，方便其他 agent
+        以 Bash 呼叫並 JSON.parse。</li>
+    <li>JSONL append-only 設計天然支援並行寫入與審計回溯。</li>
+    <li>JSON Schema (<em>draft-2020-12</em>) 對每個資料形狀都做嚴格定義，並用
+        <code>additionalProperties: false</code> 防止欄位漂移。</li>
+    <li><code>research_engine.py</code> 的 save 含 retry + exponential backoff，
+        對 IO 競爭友善。</li>
+  </ul>
+
+  <h3 class="subsection-title">7.3 工作流設計</h3>
+  <ul>
+    <li><strong>Step 0「先抓今天日期」</strong>避免模型用訓練資料預設年份做時間查詢。
+        這是非常聰明的小設計。</li>
+    <li><strong>FFS（First Finish Search）</strong>讓並行檢索達門檻即進入下一階段，
+        其餘背景搜尋的結果仍可餵入 SYNTHESIZE。</li>
+    <li><strong>OUTLINE REFINEMENT (4.5) 與 critique loop-back</strong>是 WebWeaver 風格
+        的動態大綱演化，避免「鎖定錯誤框架」。</li>
+    <li><strong>多人格紅隊</strong>（Skeptical Practitioner / Adversarial Reviewer /
+        Implementation Engineer）讓 Deep/Ultra 模式具備可操作的批判視角。</li>
+  </ul>
+</section>
+
+<section id="weaknesses" class="section">
+  <h2 class="section-title">8. 缺點、風險與技術債</h2>
+
+  <h3 class="subsection-title">8.1 設計層面</h3>
+  <div class="callout warn">
+    <strong>R1 — 純啟發式驗證的天花板。</strong>
+    <code>verify_claim_support.py</code> 用 token/number/year/entity 四個 Jaccard
+    式重疊率組合而成，對「同義改寫」「跨語言」「需邏輯推論的支撐關係」幾乎無能為力。
+    一個被改寫得很好的真實引用可能被打到 partial 甚至 needs_review；反之，token 大量
+    重疊但語義相反的 quote 可能被誤判為 supported。
+  </div>
+  <div class="callout warn">
+    <strong>R2 — 信譽白名單的可維護性。</strong>
+    <code>source_evaluator.py</code> 把幾十個域名硬編碼到集合中，新領域（如各國政府網站、
+    區域性學術出版社）需要持續維護。沒有外部資料源（如 OpenAlex、CrossRef、
+    Tranco/MOZ DA）作備援。</div>
+  <div class="callout warn">
+    <strong>R3 — Bibliography parser 過度依賴特定字串格式。</strong>
+    <code>verify_citations.extract_bibliography()</code> 假設條目格式為
+    <code>[N] Author (Year). "Title". Venue. URL</code>，模板實際輸出格式
+    <code>[N] Author. (Year). [Title](URL)</code> 與此不符（<code>title_match</code>
+    依賴雙引號），易導致 title/year 抽取失敗。</div>
+  <div class="callout warn">
+    <strong>R4 — md_to_html.py 為自寫轉換器。</strong>
+    沒用成熟函式庫（如 <code>markdown-it-py</code>），對巢狀清單、code fence、
+    HTML escape、巢狀 emphasis 的處理脆弱。例如 <code>_convert_lists()</code> 用
+    <code>'<ul>' in '\n'.join(result[-10:])</code> 的字串掃描判斷有序/無序，
+    在複雜輸入下可能誤判。</div>
+
+  <h3 class="subsection-title">8.2 工程層面</h3>
+  <ul>
+    <li><strong>耦合測試</strong>：超過一半腳本沒有單元測試覆蓋；<code>source_evaluator.py</code>
+        甚至連基本 fixture 都沒有。</li>
+    <li><strong>效能</strong>：<code>cmd_register_source</code> 每次都用 O(n) 線性掃描判重，
+        當 sources 上千時會變慢；可考慮一次性建立 in-memory set 或外加 index 檔。</li>
+    <li><strong>路徑硬編碼</strong>：<code>research_engine.py</code> 預設輸出到
+        <code>~/.claude/research_output/</code>，但 SKILL.md 又寫
+        <code>~/Documents/[Topic]_Research_[YYYYMMDD]/</code>，兩個慣例並存易混淆。</li>
+    <li><strong>沒有並發鎖</strong>：JSONL append 在多 agent 同時寫入時可能交錯
+        （單行 write 在多數 OS 上確實 atomic，但缺少明示文檔；若改成多行 record 將易壞）。</li>
+    <li><strong>無 lock 檔避免重複 init-run</strong>：呼叫者可能無意間再執行
+        <code>init-run</code>，雖然有「<code>if not os.path.exists</code>」保護
+        artifact 檔，但會覆寫 <code>run_manifest.json</code>。</li>
+  </ul>
+
+  <h3 class="subsection-title">8.3 流程層面</h3>
+  <ul>
+    <li><strong>對 search-cli 的耦合</strong>：methodology 把 search-cli 列為「primary」
+        並要求模型優先呼叫；但這只是 brew 安裝的第三方 CLI，企業環境難以部署。
+        WebSearch fallback 的職責切換策略沒明文規範。</li>
+    <li><strong>QPS / cost 控制缺失</strong>：「並行 5-10 次搜尋 + 2-3 個 sub-agent」
+        的策略沒納入 token / 金錢預算，UltraDeep 模式可能燒得很兇。</li>
+    <li><strong>資訊來源缺乏 PDF/長文擷取的標準化路徑</strong>：仰賴
+        <code>search -m extract</code> 的黑箱。</li>
+    <li><strong>無多語言支援</strong>：所有 prompt、模板、validator 預設英文；
+        對非英語題材（如本次的繁中報告）幾乎沒有現成 hook。</li>
+  </ul>
+</section>
+
+<section id="search-citation-lifecycle" class="section">
+  <h2 class="section-title">9. 深度章節：Search → Citation 完整生命週期</h2>
+
+  <p>
+    本節是本份分析的重心。我們把整個從「使用者下達研究指令」到「最終 HTML/PDF
+    包含可信引用」的過程拆解成 12 個明確階段，並對應到具體腳本與資料檔。
+  </p>
+
+  <div class="lifecycle">
+    <ol>
+      <li class="stage">
+        <h4>研究啟動：建立 Run 容器</h4>
+        <p>
+          模型決定模式（quick/standard/deep/ultradeep）後，在
+          <code>~/Documents/[Topic]_Research_[YYYYMMDD]/</code> 建立資料夾並執行：
+        </p>
+<pre><code>python scripts/citation_manager.py init-run \
+  --out-dir [folder] --query "[原始問題]" --mode [mode]</code></pre>
+        <p>
+          產出 <code>run_manifest.json</code>（含版本 3.0.0、started_at、
+          provider_config、artifact_paths）以及空的 <code>sources.jsonl</code>、
+          <code>evidence.jsonl</code>、<code>claims.jsonl</code>。從此刻起，所有狀態
+          都「離開模型上下文，落入磁碟」。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>Step 0：取得當前日期</h4>
+        <p>
+          <code>date +%Y-%m-%d</code> 經 Bash 工具回傳。所有後續日期過濾
+          （例如 <code>start_published_date</code>、<em>recent 12-18 months</em>）
+          都以此為錨，避免訓練資料時點偏差。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>查詢分解：5-10 個獨立角度</h4>
+        <p>
+          模型把研究問題拆成多個搜尋子角度（核心語意、技術細節、近期動態、
+          學術文獻、對立觀點、統計數據、產業分析、批判限制）。每個角度產生
+          1-3 條搜尋指令。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>並行檢索：search-cli 為主，WebSearch 為備</h4>
+        <p>
+          模型在「<strong>單一訊息中</strong>」發出多個 Bash 工具呼叫，並可選配
+          幾個 Task sub-agent 處理 PDF / repo 深挖。每個 sub-agent 的輸出強制為
+          結構化 JSON：
+        </p>
+<pre><code>{"claim": "...", "evidence_quote": "...", "source_url": "...",
+ "source_title": "...", "confidence": 0.85}</code></pre>
+        <p>
+          這個約束是為了避免「3 個 agent 各自寫散文，主 agent 要花大量 token 重新
+          消化」的合成疲勞（synthesis fatigue）。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>FFS 門檻判定</h4>
+        <p>
+          當前批次累計到模式對應的「來源數 + 平均 credibility」門檻時，主流程
+          進入 Phase 4；其餘檢索作為背景任務繼續，結果留待 SYNTHESIZE 使用。
+        </p>
+        <table>
+          <thead><tr><th>模式</th><th>來源數</th><th>平均信譽</th><th>時間上限</th></tr></thead>
+          <tbody>
+            <tr><td>Quick</td><td>10+</td><td>&gt;60</td><td>2 min</td></tr>
+            <tr><td>Standard</td><td>15+</td><td>&gt;60</td><td>5 min</td></tr>
+            <tr><td>Deep</td><td>25+</td><td>&gt;70</td><td>10 min</td></tr>
+            <tr><td>UltraDeep</td><td>30+</td><td>&gt;75</td><td>15 min</td></tr>
+          </tbody>
+        </table>
+      </li>
+
+      <li class="stage">
+        <h4>來源註冊：拿到穩定 source_id</h4>
+        <p>
+          對每一個檢索結果中要被引用的來源呼叫：
+        </p>
+<pre><code>python scripts/citation_manager.py register-source \
+  --json '{"raw_url": "...", "title": "...", "source_type": "academic", "year": "2024"}' \
+  --dir [folder]</code></pre>
+        <p>
+          內部流程：<code>canonicalize_locator()</code> → DOI/arXiv 優先，否則
+          URL 標準化 → <code>compute_source_id()</code> = SHA-256 截前 16 hex →
+          掃 <code>sources.jsonl</code> 判重 → append。回傳
+          <code>{status: registered|duplicate, source_id, canonical_locator}</code>。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>信譽評分（可選但建議）</h4>
+        <p>
+          模型可呼叫 <code>source_evaluator.SourceEvaluator.evaluate_source(url, title, ...)</code>
+          取得 <code>CredibilityScore</code>。此分數可被寫入 source 的
+          <code>metadata_status</code> 或外部記錄，用於 FFS 門檻計算與
+          「&gt;80 → 核心論點」「&lt;40 → 額外驗證」的策略選擇。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>證據持久化</h4>
+        <p>
+          對每段「將來會被報告引用」的句子（exact quote 或 paraphrase）呼叫：
+        </p>
+<pre><code>python scripts/evidence_store.py add \
+  --json '{"source_id": "...", "quote": "exact text", "evidence_type": "direct_quote",
+          "locator": "page 5", "retrieval_query": "..." }' \
+  --dir [folder]</code></pre>
+        <p>
+          內部用 <code>compute_evidence_id(source_id, quote, locator)</code>
+          做去重。此步驟<strong>必須</strong>在 SYNTHESIZE 前完成，否則後續 claim
+          支撐驗證沒有資料可用。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>三角驗證 + 動態大綱</h4>
+        <p>
+          Phase 4：核心論點要求 ≥3 個獨立來源；若只剩單源即標記 unverified。
+          Phase 4.5：對照初始 scope 與實際證據，若有重大未預期主題則更新大綱
+          （≤50% 重組為上限），可發 2-3 個 delta-query 補洞。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>合成寫作 + 即時引用</h4>
+        <p>
+          進入 Phase 5/8，模型逐節 Edit/Write markdown 報告，每個事實性句子
+          後立即接 <code>[N]</code> 引用。N 由
+          <code>citation_manager.py assign-display-numbers</code> 在最後對映
+          source_id → 整數編號（註冊順序）；在撰寫過程中模型可先用 placeholder
+          tag 後置替換，亦可邊寫邊調用該指令保持一致。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>論點抽取與支撐驗證</h4>
+        <p>
+          報告寫完後執行：
+        </p>
+<pre><code>python scripts/extract_claims.py extract --report [path]/report.md --dir [folder]
+python scripts/verify_claim_support.py verify --dir [folder] --strict</code></pre>
+        <p>
+          <code>extract_claims</code> 會把每節切成原子論點並依 regex 啟發式分類為
+          factual / synthesis / recommendation / speculation。<code>verify_claim_support</code>
+          再用 token+number+year+entity 四維 Jaccard 加權打分；<code>--strict</code>
+          模式下若有任一 factual claim 為 unsupported 即非零退出，迫使模型回去補證據。
+        </p>
+      </li>
+
+      <li class="stage">
+        <h4>結構與引用最終驗證</h4>
+        <p>
+          最後一道閘門：
+        </p>
+<pre><code>python scripts/validate_report.py --report [path]/report.md
+python scripts/verify_citations.py --report [path]/report.md
+python scripts/citation_manager.py export-bibliography --dir [folder] --style markdown
+python scripts/md_to_html.py [path]/report.md
+python scripts/verify_html.py --html [path]/report.html --md [path]/report.md</code></pre>
+        <p>
+          <code>validate_report</code> 跑 9 項結構檢查；<code>verify_citations</code>
+          做 DOI/URL/CiteGuard 比對；<code>md_to_html</code> + <code>verify_html</code>
+          完成排版與一致性檢核。
+          <strong>三個 validator 中任一失敗 → 進入「validate → fix → retry」迴圈，
+          最多 3 輪。</strong>
+        </p>
+      </li>
+    </ol>
+  </div>
+
+  <div class="callout ok">
+    <strong>關鍵不變量：</strong>
+    在整個生命週期中，<code>source_id</code>、<code>evidence_id</code>、
+    <code>claim_id</code> 一旦寫入即不變；<code>[N]</code> 顯示編號永遠在 render time
+    重新計算。這保證了「重排引用順序」「續寫」「更換引用樣式」三種操作不會破壞
+    引用網路的完整性。
+  </div>
+</section>
+
+<section id="reproduce-prompt" class="section">
+  <h2 class="section-title">10. 交付給其他 coding agent 的覆現 Prompt</h2>
+
+  <p>
+    以下 Prompt 可以直接交給任何具備檔案系統與 shell 能力的 coding agent
+    （Claude Code、Cursor Composer、Aider、OpenAI Codex CLI 等），用於從零實作出
+    一個「行為等價」的 search → citation 子系統。Prompt 力求自包含，不依賴本份
+    分析以外的上下文。
+  </p>
+
+  <h3 class="subsection-title">10.1 完整 Prompt（直接複製可用）</h3>
+
+<pre><code>YOU ARE: 一個獨立 coding agent，請從零實作「Deep Research Skill 的 Search → Citation
+子系統」之等價物。請在當前 git repo 內以 Python 3.9+ 標準函式庫實作，無第三方相依。
+
+================================================================
+# 一、頂層目標
+================================================================
+建立一條工作流，使任何模型 / agent 在做多源研究時，能夠：
+  (a) 並行檢索 → (b) 給每個來源穩定身分 → (c) 持久化證據引文 →
+  (d) 抽取原子論點 → (e) 驗證論點是否被證據支撐 →
+  (f) 驗證最終 markdown 報告的引用合法性。
+
+所有狀態必須落地到磁碟，使「上下文壓縮 / 續寫 / 多 agent 並行」都不會破壞
+引用關聯。引用顯示編號 [1][2][3] 必須在 render time 計算，不可入庫。
+
+================================================================
+# 二、目錄與檔案
+================================================================
+專案應建立以下結構（檔名固定）：
+  scripts/
+    citation_manager.py        # 來源身分 + run manifest
+    evidence_store.py          # 證據持久化
+    extract_claims.py          # 報告 → 原子論點
+    verify_claim_support.py    # 論點 ↔ 證據對齊
+    verify_citations.py        # DOI/URL/幻覺檢測
+    source_evaluator.py        # 信譽評分
+    validate_report.py         # 9 項結構檢查
+  schemas/
+    source.schema.json
+    evidence.schema.json
+    claim.schema.json
+    run_manifest.schema.json
+  tests/
+    test_citation_manager.py
+    test_evidence_store.py
+    test_extract_claims.py
+    test_verify_claim_support.py
+
+================================================================
+# 三、資料契約（必須完全相容）
+================================================================
+所有狀態以 append-only JSONL 寫入 run 資料夾。三個內容尋址 ID：
+  source_id   = sha256(canonical_locator)[:16]
+  evidence_id = sha256(source_id + normalize(quote) + locator_or_empty)[:16]
+  claim_id    = sha256(section_id + normalize(text))[:16]
+其中 normalize() = 將連續空白壓縮為單一空白並 trim、lower-case。
+locator 可為 None；當 None 時以空字串參與哈希。
+
+canonical_locator 規則（依優先序）：
+  1. 若字串含 doi.org/{id} 或 doi:{id} → 取 "doi:" + 去尾部句點的 id。
+  2. 若字串含 arxiv.org/abs/{id} 或 arxiv:{id} → 取 "arxiv:" + id（含 vN）。
+  3. 否則：lower-case scheme+host、去 fragment、去追蹤參數
+     (utm_source, utm_medium, utm_campaign, utm_term, utm_content,
+      ref, source, fbclid, gclid, mc_cid, mc_eid)，
+     將剩下 query 排序後重新組合。path 去除尾部 '/'。
+
+source 欄位：source_id, canonical_locator, raw_url, title, authors(list|null),
+  year(str|null), source_type(enum: web/academic/documentation/code/news/government/book),
+  metadata_status(enum: unverified/doi_verified/url_verified/title_matched),
+  registered_at(ISO8601 UTC).
+evidence 欄位：evidence_id, source_id, retrieval_query(str|null),
+  locator(str|null), quote, evidence_type(enum:
+  direct_quote/paraphrase/data_point/figure_reference/methodology),
+  captured_at.
+claim 欄位：claim_id, section_id, text, claim_type(enum:
+  factual/synthesis/recommendation/speculation),
+  cited_source_ids[], evidence_ids[], support_status(enum:
+  unverified/supported/partial/unsupported/needs_review), extracted_at.
+run_manifest 欄位：version="3.0.0", query, mode(enum:
+  quick/standard/deep/ultradeep), started_at, finished_at(null),
+  assumptions[], provider_config{primary, scholarly},
+  report_dir, artifact_paths{sources, evidence, claims, report},
+  continuation(null|object).
+
+對應 JSON Schema 必須使用 draft-2020-12，並設 additionalProperties: false。
+
+================================================================
+# 四、CLI 介面（必須完全相容，輸出為單行 JSON 至 stdout）
+================================================================
+citation_manager.py:
+  init-run --out-dir DIR --query Q --mode M
+  register-source --json '{...}' --dir DIR
+    → {"status": "registered"|"duplicate", "source_id": "...", "canonical_locator": "..."}
+  assign-display-numbers --dir DIR
+    → {source_id: integer}  依 sources.jsonl 註冊順序，1-based。
+  export-bibliography --dir DIR --style markdown|json
+
+evidence_store.py:
+  init --dir DIR
+  add --json '{...}' --dir DIR
+    → {"status": "added"|"duplicate", "evidence_id": "...", "source_id": "..."}
+  list --dir DIR [--source-id SID]
+  export --dir DIR
+
+extract_claims.py:
+  extract --report PATH --dir DIR
+  add --json '{...}' --dir DIR
+  list --dir DIR [--section X] [--type Y] [--status Z]
+  stats --dir DIR
+
+verify_claim_support.py:
+  verify --dir DIR [--strict]
+    → {"status": "pass"|"fail", "verified": N,
+       "support_status_counts": {...}, "factual_unsupported": N,
+       "total_factual": N, "unsupported_rate": float}
+    --strict 時若 factual_unsupported>0 則 exit(1)。
+  report --dir DIR
+
+verify_citations.py:
+  --report PATH [--strict]
+  從 ## Bibliography 區段抓 [N] 條目，做：
+    1. 幻覺模式偵測（regex）：
+       - "^(A|An|The)? (Study|Analysis|Review|Survey|Investigation) (of|on|into)"
+       - "^(Recent|Current|Modern|Contemporary) (Advances|Developments|Trends) in"
+       - "^[A-Z][a-z]+ [A-Z][a-z]+: A (Comprehensive|Complete|Systematic) (Review|Analysis|Guide)$"
+       - 標題出現 tbd/todo/placeholder/example
+       - 未來年份；2000 年前但提及 ai/llm/gpt/transformer
+       - 近年但無 DOI 也無 URL
+    2. DOI 解析：對 https://doi.org/{doi} 加 header
+       Accept: application/vnd.citationstyles.csl+json，比對 title Jaccard
+       (詞袋交集/聯集) <0.5 即 mismatch；year 不一致即 mismatch。
+    3. URL HEAD 請求（10 秒 timeout）。
+    4. 兩者皆無 → suspicious。
+  --strict 時 suspicious>0 即 exit(1)。
+
+validate_report.py:
+  --report PATH 跑 9 項檢查（如本分析 §5.7 所列），任一 error 即 exit(1)。
+
+source_evaluator.py:
+  以 dataclass CredibilityScore(overall_score, domain_authority, recency,
+  expertise, bias_score, factors, recommendation) 暴露 evaluate_source(url,
+  title, content=None, publication_date=None, author=None)。
+  權重：domain 35%, recency 20%, expertise 25%, bias 20%。
+  HIGH/MODERATE/LOW 域名集合至少需涵蓋本分析 §5.3 所列範例。
+
+================================================================
+# 五、verify_claim_support 演算法（請完全照抄）
+================================================================
+對每一個 claim：
+  收集 quotes = [evidence.quote for ev_id in claim.evidence_ids 若 ev_id 在 evidence.jsonl 中]
+              + [所有 source_id ∈ claim.cited_source_ids 之全部 evidence.quote]
+  若 quotes 為空且 cited_source_ids 為空且 evidence_ids 為空：
+     若 claim_type=='speculation' → support_status='supported'，否則 'unsupported'
+  否則若 quotes 為空（即有 cited/evidence 連結但抓不到任何 quote）→ 'needs_review'
+  否則對每段 quote 計算：
+     claim_tokens   = re.findall(r'\b[a-z]{4,}\b', text.lower())
+     claim_numbers  = re.findall(r'\b\d+(?:\.\d+)?(?:%|x|X)?\b', text)
+     claim_years    = re.findall(r'\b(19|20)\d{2}\b', text)
+     claim_entities = re.findall(r'\b[A-Z][a-z]+(?:\s+[A-Z][a-z]+)*\b', text)
+                      減去停用詞 {The,This,That,These,However,Furthermore,
+                      Moreover,Additionally,Therefore,Nevertheless}
+     對 evidence quote 同樣抽取四個集合。
+     token_overlap = |claim ∩ ev|/|claim|（claim 集合空則為 0）
+     number_match  = |claim ∩ ev|/|claim|（claim 空則為 1）
+     year_match    = 同上
+     entity_match  = 同上
+     score = 0.4*token + 0.25*number + 0.15*year + 0.2*entity
+  取所有 quote 中最高 score：
+     ≥0.6 → 'supported'； ≥0.35 → 'partial'； 否則 'needs_review'。
+
+================================================================
+# 六、典型呼叫流程（請在 README 中以 shell 範例展示）
+================================================================
+1) python scripts/citation_manager.py init-run --out-dir /tmp/run --query "Q" --mode standard
+2) python scripts/citation_manager.py register-source \
+     --json '{"raw_url":"https://arxiv.org/abs/2305.14251","title":"...","year":"2023","source_type":"academic"}' \
+     --dir /tmp/run
+3) python scripts/evidence_store.py add \
+     --json '{"source_id":"<from step 2>","quote":"...","evidence_type":"direct_quote","locator":"p.5"}' \
+     --dir /tmp/run
+4) （模型撰寫 report.md，內含 [1][2][3] 引用）
+5) python scripts/citation_manager.py assign-display-numbers --dir /tmp/run
+6) python scripts/extract_claims.py extract --report /tmp/run/report.md --dir /tmp/run
+7) python scripts/verify_claim_support.py verify --dir /tmp/run --strict
+8) python scripts/validate_report.py --report /tmp/run/report.md
+9) python scripts/verify_citations.py --report /tmp/run/report.md --strict
+
+================================================================
+# 七、測試需求
+================================================================
+為 citation_manager / evidence_store / extract_claims / verify_claim_support
+各撰寫 pytest 單元測試，至少涵蓋：
+  - canonicalize_locator 對 DOI/arXiv/含 utm 參數的 URL
+  - 重複註冊／重複 evidence 的去重
+  - claim_type 啟發式（"should..." → recommendation；"might..." → speculation）
+  - verify_claim_support 在「token 高度重疊」「年份不一致」「沒有 evidence」
+    三種情境下分別回傳 supported/partial/needs_review/unsupported。
+
+================================================================
+# 八、不可破壞的不變量
+================================================================
+- source_id/evidence_id/claim_id 一經寫入永不變更。
+- JSONL 只追加，不可在中段改寫。
+- 所有 CLI stdout 必須是合法 JSON（除 list/report/help 子指令可選擇人類可讀）。
+- 所有腳本 exit code：0=成功；1=有 error；其他保留。
+- 不得引入第三方 Python 套件；只用標準函式庫。
+
+完成後請輸出：
+  (1) 各檔案 LOC；
+  (2) pytest 通過數；
+  (3) 一個 demo run 的 sources.jsonl / evidence.jsonl / claims.jsonl
+      內容摘要與 verify_claim_support 的 stdout JSON。
+</code></pre>
+
+  <div class="callout">
+    <strong>使用建議：</strong>
+    將上述 Prompt 整段貼給目標 agent，並補一句「請開新分支
+    <code>reproduce/search-citation</code>，完成後執行所有測試並提交 PR」。
+    若目標 agent 受限於工具，可移除 §六 的 step 4（撰寫 report.md），
+    改用 fixture 驗證 §五 的演算法輸出。
+  </div>
+</section>
+
+<section id="conclusion" class="section">
+  <h2 class="section-title">11. 結論與後續建議</h2>
+  <p>
+    Deep Research Skill 是少數把「LLM 研究流程」當成嚴肅軟體工程問題處理的
+    skill。它最具差異化的貢獻是「<strong>把引用變成內容尋址資料庫</strong>」，
+    讓引用的完整性脫離模型上下文的脆弱性。<code>verify_claim_support.py</code>
+    雖然演算法樸素，但「便宜、可重複、CI 友善」三個性質讓它非常實用。
+    CiteGuard 模式則是對 LLM 引用幻覺的有效一線防線。
+  </p>
+
+  <p>
+    若要進一步強化，建議的優先項目：
+  </p>
+  <ol>
+    <li><strong>把 bibliography 解析從 regex 改為結構化 JSON 渲染</strong>，
+        讓 <code>citation_manager export-bibliography</code> 與
+        <code>verify_citations</code> 共用同一條解析規則，避免格式漂移。</li>
+    <li><strong>增加 LLM-judge 補位</strong>：對 <code>partial / needs_review</code>
+        的 claim 才呼叫 LLM 做二次裁決，兼顧成本與召回率。</li>
+    <li><strong>整合 OpenAlex / CrossRef</strong>：取代硬編碼信譽白名單，並用
+        OpenAlex 的 <em>concept</em> 欄位做主題相關性。</li>
+    <li><strong>補齊測試</strong>：至少為 <code>validate_report</code>、
+        <code>verify_citations</code>、<code>md_to_html</code>、
+        <code>source_evaluator</code> 加上回歸 fixtures。</li>
+    <li><strong>多語言支援</strong>：把 <code>STOP_ENTITIES</code>、章節 regex、
+        模板抽成 i18n 資源，讓繁中/日文/韓文題材也能跑。</li>
+    <li><strong>明示 IO 鎖</strong>：在 <code>append_jsonl</code> 加
+        <code>fcntl.flock()</code>（POSIX）或 portalocker，避免多 agent 並發
+        寫入交錯。</li>
+  </ol>
+</section>
+
+</main>
+
+<footer>
+  本文件由分析作業自動產生，內容皆基於對 repository 原始碼之逐行閱讀。
+  分析範圍涵蓋 5,554 行原始檔（10 個 Python 腳本、4 個 JSON Schema、
+  6 個 reference 文件、2 個模板）。
+</footer>
+
+</div>
+</body>
+</html>
