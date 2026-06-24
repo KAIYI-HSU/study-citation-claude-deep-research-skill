@@ -1,0 +1,60 @@
+{
+  "_note": "ILLUSTRATIVE SAMPLE DATA for the offline demo — not a live Consensus response. Findings are directionally accurate but DOIs/counts are for demonstration only.",
+  "query": "Do statins reduce cardiovascular mortality?",
+  "results": [
+    {
+      "title": "Efficacy and safety of more intensive lowering of LDL cholesterol: a meta-analysis of data from 170,000 participants in 26 randomised trials",
+      "abstract": "In a meta-analysis of 26 randomised trials of statin therapy, each 1.0 mmol/L reduction in LDL cholesterol was associated with a 10% proportional reduction in all-cause mortality and a 20% reduction in coronary heart disease death. The proportional reductions in major vascular events were similar across all subgroups examined, including by baseline risk. Statin therapy can safely reduce the incidence of major vascular events.",
+      "authors": ["Baigent, C.", "Blackwell, L.", "Emberson, J."],
+      "doi": "10.1016/S0140-6736(10)61350-5",
+      "journal_name": "The Lancet",
+      "publish_year": 2010,
+      "citation_count": 6421,
+      "publisher": "Elsevier",
+      "takeaway": "each 1 mmol/L LDL reduction with statins lowers coronary death by about 20% and all-cause mortality by about 10%, consistently across baseline-risk subgroups"
+    },
+    {
+      "title": "Randomised trial of cholesterol lowering in 4444 patients with coronary heart disease: the Scandinavian Simvastatin Survival Study (4S)",
+      "abstract": "Over a median follow-up of 5.4 years, simvastatin produced a 30% relative reduction in all-cause mortality (8.2% vs 11.5%) among patients with coronary heart disease and elevated cholesterol. The risk of coronary death was reduced by 42%. This was the first large trial to show that lowering cholesterol improves survival in patients with established coronary disease.",
+      "authors": ["Pedersen, T. R."],
+      "doi": "https://doi.org/10.1016/S0140-6736(94)90566-5",
+      "journal_name": "The Lancet",
+      "publish_year": 1994,
+      "citation_count": 9120,
+      "publisher": "Elsevier",
+      "takeaway": "in patients with established coronary heart disease, simvastatin cut all-cause mortality by 30% and coronary death by 42% over 5.4 years"
+    },
+    {
+      "title": "Rosuvastatin to prevent vascular events in men and women with elevated C-reactive protein (JUPITER)",
+      "abstract": "In apparently healthy individuals with elevated high-sensitivity C-reactive protein but normal LDL cholesterol, rosuvastatin significantly reduced the incidence of major cardiovascular events. All-cause mortality was reduced by 20% (hazard ratio 0.80) over a median 1.9 years before the trial was stopped early for benefit.",
+      "authors": ["Ridker, P. M.", "Danielson, E.", "Fonseca, F. A. H.", "Genest, J."],
+      "doi": "10.1056/NEJMoa0807646",
+      "journal_name": "New England Journal of Medicine",
+      "publish_year": 2008,
+      "citation_count": 7330,
+      "publisher": "Massachusetts Medical Society",
+      "takeaway": "in primary prevention with elevated CRP, rosuvastatin reduced all-cause mortality by 20% and was stopped early for benefit"
+    },
+    {
+      "title": "Statin therapy and cardiovascular outcomes in older adults: a community cohort analysis",
+      "abstract": "This observational community cohort of adults aged 75 and older found that statin initiation was associated with a lower rate of cardiovascular death over a 6-year period, though residual confounding cannot be excluded. The association was attenuated but persisted after adjustment for frailty indices.",
+      "authors": ["Okafor, N.", "Hellström, L.", "Watanabe, S."],
+      "doi": "",
+      "journal_name": "Journal of Geriatric Cardiology",
+      "publish_year": 2019,
+      "citation_count": 47,
+      "publisher": "Science Press",
+      "takeaway": "in adults 75+, statin initiation was associated with lower cardiovascular mortality, though residual confounding limits causal inference"
+    },
+    {
+      "title": "Adverse effects and discontinuation of statin therapy: a systematic review",
+      "abstract": "This systematic review of statin tolerability found that muscle-related symptoms are the most commonly reported adverse effect leading to discontinuation, but rates in blinded randomised trials are close to placebo. Discontinuation is associated with increased cardiovascular risk, underscoring the importance of adherence.",
+      "authors": ["Marchetti, G.", "Sørensen, K.", "Ahmed, R.", "Volkova, I."],
+      "doi": "10.1093/eurheartj/ehv043",
+      "journal_name": "European Heart Journal",
+      "publish_year": 2015,
+      "citation_count": 512,
+      "publisher": "Oxford University Press"
+    }
+  ]
+}

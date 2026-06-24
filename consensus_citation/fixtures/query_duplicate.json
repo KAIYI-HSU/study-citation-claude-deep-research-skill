@@ -1,0 +1,39 @@
+{
+  "_note": "ILLUSTRATIVE SAMPLE DATA for a SECOND query. Shares the CTT meta-analysis DOI with query_statins.json (here written with an https://doi.org/ prefix) to demonstrate cross-query, prefix-insensitive deduplication.",
+  "query": "Do statins help in primary prevention?",
+  "results": [
+    {
+      "title": "Efficacy and safety of more intensive lowering of LDL cholesterol: a meta-analysis of data from 170,000 participants in 26 randomised trials",
+      "abstract": "In a meta-analysis of 26 randomised trials of statin therapy, each 1.0 mmol/L reduction in LDL cholesterol was associated with a 10% proportional reduction in all-cause mortality and a 20% reduction in coronary heart disease death. Benefit extended to participants at lower baseline cardiovascular risk.",
+      "authors": ["Baigent, C.", "Blackwell, L.", "Emberson, J."],
+      "doi": "https://doi.org/10.1016/S0140-6736(10)61350-5",
+      "journal_name": "The Lancet",
+      "publish_year": 2010,
+      "citation_count": 6421,
+      "publisher": "Elsevier",
+      "takeaway": "statin benefit on vascular events extends to lower-risk primary-prevention populations, not only secondary prevention"
+    },
+    {
+      "title": "Effect of statins on primary prevention of cardiovascular events: an updated meta-analysis of randomised controlled trials",
+      "abstract": "Across primary-prevention randomised controlled trials, statin therapy reduced the risk of major cardiovascular events and all-cause mortality in participants without established cardiovascular disease, with an absolute benefit proportional to baseline risk.",
+      "authors": ["Tan, W.", "Greco, M.", "Abadi, S."],
+      "doi": "10.1001/jama.2016.13985",
+      "journal_name": "JAMA",
+      "publish_year": 2016,
+      "citation_count": 1188,
+      "publisher": "American Medical Association",
+      "takeaway": "in people without established cardiovascular disease, statins reduce major cardiovascular events and all-cause mortality, scaled to baseline risk"
+    },
+    {
+      "title": "Cost-effectiveness of statins for primary prevention in low-risk adults",
+      "abstract": "A health-economic modelling study found statin therapy for primary prevention to be cost-effective across most low-risk strata under contemporary generic pricing, with sensitivity to assumptions about adherence and disutility from daily medication.",
+      "authors": ["Bianchi, F.", "Olsen, H."],
+      "doi": "",
+      "journal_name": "Health Economics Review",
+      "publish_year": 2021,
+      "citation_count": 23,
+      "publisher": "Springer",
+      "takeaway": "statins for low-risk primary prevention are generally cost-effective under generic pricing, though results are sensitive to adherence assumptions"
+    }
+  ]
+}

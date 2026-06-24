@@ -1,0 +1,13 @@
+# consensus_citation — dependencies
+#
+# Core pipeline (normalization, citation store, dedup, display numbering,
+# bibliography, integrity check, offline synthesis) uses the Python 3.9+
+# standard library ONLY — nothing to install.
+#
+# OPTIONAL: real LLM synthesis with Claude. Without it, the demo automatically
+# falls back to the deterministic offline synthesizer. To enable, install:
+#
+#     pip install anthropic
+#
+# (left commented so `pip install -r requirements.txt` keeps the core dep-free)
+# anthropic>=0.40

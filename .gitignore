@@ -24,6 +24,7 @@ Thumbs.db
 # Research output (kept local)
 *.json
 !schemas/*.json
+!consensus_citation/fixtures/*.json
 
 # Test output
 .pytest_cache/
